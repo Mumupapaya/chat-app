@@ -1,46 +1,63 @@
+// server.js
+const express = require('express');
+const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 const PORT = process.env.PORT || 3000;
 
-http.listen(PORT, () => {
-  console.log(`服务器正在监听 ${PORT} 端口`);
-});
+app.use(express.static('public'));
 
-console.log('服务器脚本开始运行');
-process.on('uncaughtException', function (err) {
-    console.error('未捕获的异常：', err);
-  });
-  
-  process.on('unhandledRejection', function (reason, p) {
-    console.error('未处理的拒绝：', reason);
-  });
-  
-
-const express = require('express');
-console.log('已导入 express');
-
-const app = express();
-console.log('已创建 express 应用');
-
-const http = require('http').createServer(app);
-console.log('已创建 http 服务器');
-
-const io = require('socket.io')(http);
-console.log('已导入 socket.io');
-
-app.use(express.static(__dirname + '/public'));
-console.log('已设置静态文件夹');
+const users = {}; // 存储已连接的用户
 
 io.on('connection', (socket) => {
-  console.log('一个用户连接了');
+  // 检查当前连接的用户数量
+  const userCount = Object.keys(users).length;
+
+  if (userCount >= 2) {
+    // 发送消息给客户端，告知聊天室已满
+    socket.emit('room full');
+    socket.disconnect();
+    return;
+  }
+
+  console.log('一位使用者已連線：', socket.id);
+
+  // 等待接收使用者暱稱
+  socket.on('set username', (username) => {
+    users[socket.id] = {
+      username: username,
+      color: '', // 颜色稍后分配
+    };
+
+    // 为用户分配固定的颜色
+    if (Object.keys(users).length === 1) {
+      users[socket.id].color = '#FFE6EA'; // 更淡的粉紅色
+    } else {
+      users[socket.id].color = '#F5F5DC'; // 米白色
+    }
+
+    console.log('使用者已連線：', users[socket.id]);
+  });
 
   socket.on('chat message', (msg) => {
-    io.emit('chat message', msg);
+    if (users[socket.id]) {
+      const user = users[socket.id];
+      const timestamp = new Date().toLocaleTimeString('zh-TW', { hour12: false });
+      io.emit('chat message', {
+        msg: msg,
+        username: user.username,
+        color: user.color,
+        time: timestamp,
+      });
+    }
   });
 
   socket.on('disconnect', () => {
-    console.log('用户已断开连接');
+    console.log('使用者已離線：', socket.id);
+    delete users[socket.id];
   });
 });
 
-http.listen(3000, () => {
-  console.log('服务器正在监听 3000 端口');
+http.listen(PORT, () => {
+  console.log(`伺服器正在監聽 ${PORT} 埠口`);
 });
