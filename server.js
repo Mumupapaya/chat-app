@@ -1,11 +1,13 @@
 // server.js
 const express = require('express');
+const path = require('path'); // 引入 path 模块
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const PORT = process.env.PORT || 3000;
 
-app.use(express.static('public'));
+// 设置静态文件目录
+app.use(express.static(path.join(__dirname, 'public')));
 
 const users = {}; // 存储已连接的用户
 
@@ -58,6 +60,7 @@ io.on('connection', (socket) => {
   });
 });
 
-http.listen(PORT, () => {
+// 修改监听设置，确保在 Render 上正常运行
+http.listen(PORT, '0.0.0.0', () => {
   console.log(`伺服器正在監聽 ${PORT} 埠口`);
 });
