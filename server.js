@@ -1,3 +1,9 @@
+const PORT = process.env.PORT || 3000;
+
+http.listen(PORT, () => {
+  console.log(`服务器正在监听 ${PORT} 端口`);
+});
+
 console.log('服务器脚本开始运行');
 process.on('uncaughtException', function (err) {
     console.error('未捕获的异常：', err);
