@@ -1,3 +1,4 @@
+<!-- public/index.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,7 +11,7 @@
       margin: 0;
     }
     #chat {
-      max-width: 600px;
+      max-width: 800px;
       margin: 0 auto;
       padding: 20px;
       background-color: #FFEFF3; /* 更淡的淺粉紅色 */
@@ -23,22 +24,31 @@
     #messages {
       flex: 1;
       list-style-type: none;
-      padding: 0;
+      padding: 0 10px; /* 增加左右內邊距 */
       overflow-y: scroll;
       margin-bottom: 0;
-      padding-right: 10px; /* 添加右侧内边距 */
+      display: flex;
+      flex-direction: column;
     }
     #messages li {
       position: relative;
-      padding: 12px;
-      padding-bottom: 20px;
+      padding-bottom: 10px; /* 調整底部內邊距 */
       margin-bottom: 15px;
-      margin-right: 10px; /* 添加右侧外边距 */
-      border-radius: 8px;
       font-size: 16px;
-      border: 1px solid #000; /* 添加细黑边框 */
+      word-wrap: break-word;
     }
-    /* 时间戳样式 */
+    /* 左對齊訊息 */
+    #messages li.left {
+      align-self: flex-start;
+      text-align: left;
+    }
+    /* 右對齊訊息 */
+    #messages li.right {
+      align-self: flex-end;
+      text-align: left; /* 保持文本從左到右 */
+    }
+    /* 移除時間戳樣式 */
+    /*
     .timestamp {
       position: absolute;
       right: 10px;
@@ -46,6 +56,7 @@
       font-size: 12px;
       color: #555;
     }
+    */
     #message-form {
       display: flex;
       padding: 10px 0;
@@ -123,9 +134,9 @@
   <!-- 暱稱輸入模態框 -->
   <div id="username-modal">
     <div>
-      <h2>請輸入您的名字</h2>
-      <input id="username-input" placeholder="名字" />
-      <button id="username-submit">進入聊天室</button>
+      <h2>請輸入您的暱稱</h2>
+      <input id="username-input" placeholder="暱稱" />
+      <button id="username-submit">開始使用</button>
     </div>
   </div>
 
