@@ -1,6 +1,6 @@
 // server.js
 const express = require('express');
-const path = require('path'); // 引入 path 模組
+const path = require('path');
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
@@ -9,47 +9,37 @@ const PORT = process.env.PORT || 3000;
 // 設置靜態文件目錄
 app.use(express.static(path.join(__dirname, 'public')));
 
-const users = {}; // 存儲已連接的使用者
+// 存儲已連接的使用者
+const users = {};
 
+// 處理 Socket.IO 連接
 io.on('connection', (socket) => {
-  // 檢查當前連接的使用者數量
-  const userCount = Object.keys(users).length;
-
-  if (userCount >= 2) {
-    // 發送訊息給客戶端，告知聊天室已滿
-    socket.emit('room full');
-    socket.disconnect();
-    return;
-  }
-
   console.log('一位使用者已連線：', socket.id);
 
-  // 等待接收使用者暱稱
+  // 接收並設置使用者名稱
   socket.on('set username', (username) => {
-    users[socket.id] = {
-      username: username,
-    };
-
-    console.log('使用者已連線：', users[socket.id]);
+    users[socket.id] = username;
+    console.log(`使用者 ${socket.id} 設定名稱為：${username}`);
   });
 
+  // 接收聊天訊息並廣播
   socket.on('chat message', (msg) => {
-    if (users[socket.id]) {
-      const user = users[socket.id];
-      io.emit('chat message', {
-        msg: msg,
-        username: user.username,
-      });
-    }
+    const username = users[socket.id] || '匿名';
+    io.emit('chat message', {
+      msg: msg,
+      username: username
+    });
+    console.log(`訊息來自 ${username}: ${msg}`);
   });
 
+  // 處理使用者斷線
   socket.on('disconnect', () => {
     console.log('使用者已離線：', socket.id);
     delete users[socket.id];
   });
 });
 
-// 確保伺服器監聽所有網絡接口，適用於 Render
+// 啟動伺服器
 http.listen(PORT, '0.0.0.0', () => {
   console.log(`伺服器正在監聽 ${PORT} 埠口`);
 });
