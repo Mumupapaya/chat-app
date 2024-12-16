@@ -77,7 +77,7 @@ $(function () {
         appendActionButtons(msgElement, message);
       }
       $('#messages').scrollTop($('#messages')[0].scrollHeight); // 滾動到底部
-    }, 100); // 每個字出現的時間間隔（100毫秒）
+    }, 50); // 每個字出現的時間間隔（100毫秒）
   }
 
   // 函數：添加行動按鈕
